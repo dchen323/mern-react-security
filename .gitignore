@@ -1,3 +1,5 @@
 /node_modules
 dist
 .cache
+auth0-credentials.txt
+package-lock.json
