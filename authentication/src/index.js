@@ -1,4 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import history from "./history";
+import { Router, Switch, Route } from "react-router-dom";
 
-ReactDOM.render(<div>Authentication</div>, document.getElementById("root"));
+import { App, Ramen, Sushi } from "./components";
+
+ReactDOM.render(
+  <Router history={history}>
+    <Switch>
+      <Route exact path="/" component={App} />
+      <Route path="/ramen" component={Ramen} />
+      <Route path="/sushi" component={Sushi} />
+    </Switch>
+  </Router>,
+  document.getElementById("root")
+);

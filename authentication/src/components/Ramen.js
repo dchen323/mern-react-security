@@ -6,7 +6,7 @@ const Ramen = () => (
     <h2>Ramen</h2>
     <Link to="/">Home</Link>
     <div>
-      <img src="https://i.imgur.com/rPEt1g1.jpg" />
+      <img src="https://cookingwithdog.com/wp-content/uploads/2017/11/yakibuta-ramen-00.jpg" />
     </div>
   </div>
 );
