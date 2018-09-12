@@ -1,5 +1,5 @@
 /node_modules
 dist
 .cache
-auth0-credentials.txt
+auth0-credentials.js
 package-lock.json
