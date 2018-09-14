@@ -10,6 +10,8 @@ class Auth {
     responseType: "token"
   });
 
+  loggedIn = false;
+
   login = () => {
     this.auth0.authorize();
   };
@@ -17,11 +19,13 @@ class Auth {
   handleAuth = () => {
     this.auth0.parseHash((err, res) => {
       if (res) {
-        localStorage.setItem("access_token", res.acessToken);
+        localStorage.setItem("access_token", res.accessToken);
         localStorage.setItem(
           "expires_at",
           JSON.stringify(res.expiresIn * 1000 + new Date().getTime())
         );
+        this.loggedIn = true;
+
         history.replace("/");
       } else if (err) {
         console.log("err", err);
@@ -30,11 +34,18 @@ class Auth {
   };
 
   logout = () => {
-    //TODO
+    ["access_token", "expires_at"].forEach(token =>
+      localStorage.removeItem(token)
+    );
+    this.loggedIn = false;
+    history.replace("/");
   };
 
   isAuthenticated() {
-    return false;
+    return (
+      this.loggedIn &&
+      new Date().getTime() < +localStorage.getItem("expires_at")
+    );
   }
 }
 

@@ -2,8 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import Login from "./Login";
+import Logout from "./Logout";
 
-const Home = () => (
+const Home = props => (
   <div>
     <h2>Foodz</h2>
     <div>
@@ -12,11 +13,15 @@ const Home = () => (
     <div>
       <Link to="/sushi">Sushi</Link>
     </div>
+    <br />
+    <Logout {...props} />
   </div>
 );
 
 const App = props => (
-  <div>{props.auth.isAuthenticated() ? <Home /> : <Login {...props} />}</div>
+  <div>
+    {props.auth.isAuthenticated() ? <Home {...props} /> : <Login {...props} />}
+  </div>
 );
 
 export default App;

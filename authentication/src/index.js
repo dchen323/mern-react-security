@@ -17,13 +17,29 @@ const callbackComponent = props => {
   }
 };
 
+const AuthRoute = props => {
+  const { Component, path } = props;
+  return (
+    <Route
+      path={path}
+      render={() =>
+        auth.isAuthenticated() ? (
+          <Component />
+        ) : (
+          <Redirect to={{ pathname: "/" }} />
+        )
+      }
+    />
+  );
+};
+
 ReactDOM.render(
   <Router history={history}>
     <Switch>
       <Route exact path="/" render={() => <App auth={auth} />} />
       <Route path="/callback" render={props => callbackComponent(props)} />
-      <Route path="/ramen" component={Ramen} />
-      <Route path="/sushi" component={Sushi} />
+      <AuthRoute path="/ramen" Component={Ramen} />
+      <AuthRoute path="/sushi" Component={Sushi} />
     </Switch>
   </Router>,
   document.getElementById("root")
