@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const App = () => (
+import Login from "./Login";
+
+const Home = () => (
   <div>
     <h2>Foodz</h2>
     <div>
@@ -11,6 +13,10 @@ const App = () => (
       <Link to="/sushi">Sushi</Link>
     </div>
   </div>
+);
+
+const App = props => (
+  <div>{props.auth.isAuthenticated() ? <Home /> : <Login {...props} />}</div>
 );
 
 export default App;
