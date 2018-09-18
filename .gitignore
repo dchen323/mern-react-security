@@ -3,3 +3,4 @@ dist
 .cache
 auth0-credentials.js
 package-lock.json
+*secret*
