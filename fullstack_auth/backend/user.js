@@ -1,7 +1,7 @@
 const { Router } = require("express");
 
 const pool = require("./db");
-const { hash } = require("./helper");
+const { hash, Session } = require("./helper");
 
 const router = new Router();
 
@@ -14,6 +14,29 @@ router.get("/all", (req, res, next) => {
     res.json(data.rows);
   });
 });
+
+const setSession = (username, res) => {
+  const session = new Session(username);
+  const sessionStr = session.toString();
+
+  return new Promise((resolve, reject) =>
+    pool.query(
+      "UPDATE users SET session_id = $1 WHERE username_hash = $2",
+      [session.id, hash(username)],
+      (err, data) => {
+        if (err) return reject(err);
+
+        res.cookie("session_str", sessionStr, {
+          expire: Date.now() + 3600000,
+          httpOnly: true
+          // secure: true //use with https during production;
+        });
+
+        resolve();
+      }
+    )
+  );
+};
 
 router.post("/new", (req, res, next) => {
   const { username, password } = req.body;
@@ -33,7 +56,11 @@ router.post("/new", (req, res, next) => {
           (qErr, qRes) => {
             if (qErr) return next(qErr);
 
-            res.status(200).json({ message: "Successfully created user!" });
+            setSession(username, res)
+              .then(() => {
+                res.status(200).json({ message: "Successfully created user!" });
+              })
+              .catch(error => next(error));
           }
         );
       } else {
