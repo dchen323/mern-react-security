@@ -15,27 +15,40 @@ router.get("/all", (req, res, next) => {
   });
 });
 
-const setSession = (username, res) => {
-  const session = new Session(username);
-  const sessionStr = session.toString();
+const setSessionCookie = (sessionStr, res) => {
+  res.cookie("session_str", sessionStr, {
+    expire: Date.now() + 3600000,
+    httpOnly: true
+    // secure: true //use with https during production;
+  });
+};
 
-  return new Promise((resolve, reject) =>
-    pool.query(
-      "UPDATE users SET session_id = $1 WHERE username_hash = $2",
-      [session.id, hash(username)],
-      (err, data) => {
-        if (err) return reject(err);
+const setSession = (username, res, sessionId) => {
+  let session, sessionStr;
+  if (sessionId) {
+    sessionStr = Session.dataToString(username, sessionId);
+  } else {
+    session = new Session(username);
+    sessionStr = session.toString();
+  }
 
-        res.cookie("session_str", sessionStr, {
-          expire: Date.now() + 3600000,
-          httpOnly: true
-          // secure: true //use with https during production;
-        });
+  return new Promise((resolve, reject) => {
+    if (sessionId) {
+      setSessionCookie(sessionStr, res);
+      resolve();
+    } else {
+      pool.query(
+        "UPDATE users SET session_id = $1 WHERE username_hash = $2",
+        [session.id, hash(username)],
+        (err, data) => {
+          if (err) return reject(err);
 
-        resolve();
-      }
-    )
-  );
+          setSessionCookie(sessionStr, res);
+          resolve();
+        }
+      );
+    }
+  });
 };
 
 router.post("/new", (req, res, next) => {
@@ -65,6 +78,30 @@ router.post("/new", (req, res, next) => {
         );
       } else {
         res.status(409).json({ type: "error", messsage: "username taken" });
+      }
+    }
+  );
+});
+
+router.post("/login", (req, res, next) => {
+  const { username, password } = req.body;
+  pool.query(
+    "SELECT * FROM users WHERE username_hash = $1",
+    [hash(username)],
+    (err, data) => {
+      if (err) return next(err);
+
+      const user = data.rows[0];
+      if (user && user.password_hash === hash(password)) {
+        setSession(username, res, user.session_id)
+          .then(() => {
+            res.json({ message: "Successful Login!" });
+          })
+          .catch(error => next(error));
+      } else {
+        res
+          .status(400)
+          .json({ type: "error", message: "Incorrect username/password" });
       }
     }
   );
