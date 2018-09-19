@@ -27,7 +27,9 @@ class Session {
   }
 
   static parse(sessionStr) {
-    const sessionData = sessionStr.split("|");
+    const sessionData = sessionStr
+      ? sessionStr.split("|")
+      : new Array(3).fill("");
     return {
       username: sessionData[0],
       id: sessionData[1],

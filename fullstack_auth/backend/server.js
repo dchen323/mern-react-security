@@ -1,11 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 const user = require("./user");
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use("/user", user);
 
 /* Moved functionality to bash script

@@ -107,4 +107,38 @@ router.post("/login", (req, res, next) => {
   );
 });
 
+router.get("/logout", (req, res, next) => {
+  const { username, id } = Session.parse(req.cookies.session_str);
+
+  pool.query(
+    "UPDATE users SET session_id = NULL WHERE username_hash =$1",
+    [hash(username)],
+    (err, data) => {
+      if (err) return next(err);
+
+      res.clearCookie("session_str");
+
+      res.json({ message: "Successful logout" });
+    }
+  );
+});
+
+router.get("/authenticated", (req, res, next) => {
+  const { username, id } = Session.parse(req.cookies.session_str);
+
+  pool.query(
+    "SELECT * FROM users WHERE username_hash = $1",
+    [hash(username)],
+    (err, data) => {
+      if (err) return next(err);
+
+      res.json({
+        authenticated:
+          Session.verify(req.cookies.session_str) &&
+          data.rows[0].session_id === id
+      });
+    }
+  );
+});
+
 module.exports = router;
