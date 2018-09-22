@@ -8,7 +8,21 @@ export default class AuthForm extends Component {
       username: "",
       password: ""
     };
+    this.update = this.update.bind(this);
   }
+
+  update(e) {
+    this.setState({ [e.target.placeholder]: e.target.value });
+  }
+
+  signup() {
+    const { username, password } = this.state;
+
+    this.props.auth.signup(username, password);
+  }
+
+  login() {}
+
   render() {
     return (
       <div>
@@ -18,16 +32,18 @@ export default class AuthForm extends Component {
             type="text"
             value={this.state.username}
             placeholder="username"
+            onChange={this.update}
           />
           <br />
           <FormControl
             type="password"
             value={this.state.password}
             placeholder="password"
+            onChange={this.update}
           />
-          <Button>Log In</Button>
+          <Button onClick={this.login.bind(this)}>Log In</Button>
           <span>or</span>
-          <Button>Sign Up</Button>
+          <Button onClick={this.signup.bind(this)}>Sign Up</Button>
         </FormGroup>
       </div>
     );
